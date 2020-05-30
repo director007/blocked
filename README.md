@@ -1,22 +1,44 @@
-# blocked
-My idea is to create a platform based completely based on Blockchain Technology that can solve the following four major issues related to the digitalization of Education :
+OBJECTIVES:
+The goal of this project was to design and implement a decentralized attendance management portal using blockchain. Initial idea was a develop a smart contract that would allow teachers to add students of their class to this smart contract and periodically increase their attendance value using this smart contract.
 
-Attendance and Assignment Management: Creating a system where the attendance of the student and teacher is recorded based on a condition. This condition can be time-dependent. The assignments can be submitted on the block by the students through a personal account. 
+MOTIVATION:
+Maintaining paper records is too much hassle when it comes to calculating total attendance for students or uploading attendance records.
+Centralized online database is prone to various kinds of database attacks.
+Eg: the intranet attendance portal which used to exist in 2016-2017 was vulnerable to SQLi and it was possible to read and edit student records (theoretically 😊).
 
-Identity Concern: While signing up for any application there is a need to fill up some of your crucial personal details. With a system on blockchain technology, we can allow for lockers that carry your digital identity and can be used for signing in for various applications without sharing your personal details. 
+CHALLENGES AND GAS COSTS: 
+Gas measures how much "work" an action or set of actions takes to perform. The reason gas is important is that it helps to ensure an appropriate fee is being paid by transactions submitted to the network. 
+In our sample dapp have two functions createStudent() and incrementAttendance() which needs gas as data is being stored into the blockchain.
+Total gas cost = gasUsed * gasPrice
+gasUsed is a constant value. It represents the computational cost of running the Dapp.
+gasPrice is not constant, and can be adjusted by the network to compensate for changes in the value of ether.
+incrementAttendance()  - 0.000027488 Ether
+createStudent() - 0.000027488 Ether
 
-Certificate Management and Verification: Schools and students can manage their certificates and important documents on the block and can have full access over it’s display to any person or organization. Moreover, Academic credentials must be universally recognized and verifiable. Specific skill assertions can be verified and communicated with a digital badge.
+BYTES16 VS STRINGS:
+During the final stages of development of the smart contract a few changes were made to bring down gas costs for each transaction. One of the most peculiar optimization was using bytes16 instead of String.
+According to Solidity docs string is a dynamically sized-type which has current limitations in Solidity such as can't be returned from a function to a contract. Bytes16 uses less gas because it fits in a single word of the EVM. It also can be sent to web3js frontend using events or getters.
+Gas comparisons when first name and last name fields:
+Bytes16 used 10465 gas, String used 21897 gas
+Functions used for conversions:
+web3.utils.toAscii(), web3.utils.fromAscii()
 
-Libraries: Since Blockchain networks are managed by the people who are part of the network, books that are actually important and relevant to a particular network can be added so that library systems become more meaningful.   
+EVENTS VS RETURN VALUES VS CONST FUNCTIONS:
+Events are used in transactions only. When you execute a transaction function you can't get the return value because transactions are not immediately mined and included in the blockchain. Events allow you to get notified when the transaction has been mined in order to get the return value. Events have been used to retrieve info after successful creation of student.
+Functions marked constant don’t change any state values of a contract. By marking them as such, the compiler could know that storage data would not be written as a result of the function call and consequently no network verification would be required. No transaction to mine, meant no gas needed to be spent -- just read that data right off the blockchain. This was very useful in our project to retrieve a list of all the students that have been added.
 
+SETUP INSTRUCTIONS:
+•	Install metamask, connect to ropsten testnet and request faucets if empty wallet.
+•	Setup Nodejs, npm, web3js, reactjs, lite-server
+•	Extract the folder attendsys-react
+•	npm run start
 
-For the solution of the said problem, I will be adopting Blockchain Technology because at present nothing can be better than this Blockchain Technology when it comes to security and privacy. 
-Methodologies for implementing various solutions discussed are as follows :  
+USAGE:
+Each teacher can deploy their own attendanceSheet smart contract
+Add students to their smart contract by filling in studentId, first Name, last Name, age
+Then teachers will later on use the smart contract to increment the student’s attendance periodically
+Teachers can also then check the student information including their attendance till that point of time.
+All the data is stored securely on the decentralized blockchain and can never be falsified
 
-Attendance and Assignment Management: For managing attendance smart contracts can be coded which automatically updates the attendance of both student as well as teacher based on a time condition which for instance can be, attendance is recorded when a student has attended 30 minutes of class. Each student submits his/her work to the learning platform through his/her unique account, the smart contract running on it will review the student’s performance, and the results will be recorded into blocks. 
-
-Identity Concern: The identity can be issued by the institution to students, who are the claim holder. This is a digital representation of their identity. The school/college uses keys linked to their decentralized identifier on the blockchain to sign the claim so that it is tamper-evident and anyone who gets it can validate that it was issued by an authorized organization. Students have a wallet to hold their claims and can use keys linked to a decentralized identifier that students control the blockchain to countersign the digital identity. When some application or platform needs to see that the student belongs to the organization, you can present the digital identity and the platform/application can verify that it hasn’t been changed, that the school/college issued it to the student, and the student is the one presenting it. Everyone can use the blockchain to lookup decentralized identifiers and retrieve any associated public keys. 
-
-Certificate Management and Verification:  DLT solutions could streamline verification procedures and reduce fraudulent claims of unearned educational credits. Also, students can upload claims with a link to verification, and teachers can verify that claim. 
-
-Libraries: Distributed Ledger Technology (DLT) could help libraries expand their services by building an enhanced metadata archive, developing a protocol for supporting community-based collections, and facilitating more effective management of digital rights.
+FRONTEND TODO:
+Populate a list of clickable studentId buttons which can be clicked to call incrementAttendance(). The list of studentId can be fetched using getter method getStudents(). Which can be then fed into getParticularStudent() one by one to populate the list. React provides us a very powerful framework to carry out these dynamic tasks.
